@@ -1,103 +1,103 @@
-import { BigInt } from "@graphprotocol/graph-ts"
 import {
+  Daydreaming as DaydreamingEvent,
+  Terraformed as TerraformedEvent,
+  TokensRevealed as TokensRevealedEvent,
+  Transfer as TransferEvent,
   Terraforms,
-  Approval,
-  ApprovalForAll,
+} from "../generated/Terraforms/Terraforms"
+import {
   Daydreaming,
-  OwnershipTransferred,
   Terraformed,
   TokensRevealed,
-  Transfer
-} from "../generated/Terraforms/Terraforms"
-import { ExampleEntity } from "../generated/schema"
+  SupplementalData,
+  Token,
+  Terraformer
+} from "../generated/schema"
+// import { getSupplementalData } from "./supplemental"
 
-export function handleApproval(event: Approval): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
-
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
-
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
-  }
-
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  entity.owner = event.params.owner
-  entity.approved = event.params.approved
-
-  // Entities can be written to the store with `.save()`
+export function handleDaydreaming(event: DaydreamingEvent): void {
+  let entity = new Daydreaming(
+    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  )
+  entity.tokenId = event.params.tokenId
   entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.MAX_SUPPLY(...)
-  // - contract.OWNER_ALLOTMENT(...)
-  // - contract.PRICE(...)
-  // - contract.REVEAL_TIMESTAMP(...)
-  // - contract.SUPPLY(...)
-  // - contract.TOKEN_SCALE(...)
-  // - contract.balanceOf(...)
-  // - contract.dreamers(...)
-  // - contract.earlyMintActive(...)
-  // - contract.getApproved(...)
-  // - contract.isApprovedForAll(...)
-  // - contract.mintingPaused(...)
-  // - contract.name(...)
-  // - contract.owner(...)
-  // - contract.ownerOf(...)
-  // - contract.seed(...)
-  // - contract.structureData(...)
-  // - contract.supportsInterface(...)
-  // - contract.symbol(...)
-  // - contract.terraformsAugmentationsAddress(...)
-  // - contract.tokenByIndex(...)
-  // - contract.tokenCharacters(...)
-  // - contract.tokenCounter(...)
-  // - contract.tokenHTML(...)
-  // - contract.tokenHeightmapIndices(...)
-  // - contract.tokenOfOwnerByIndex(...)
-  // - contract.tokenSVG(...)
-  // - contract.tokenSupplementalData(...)
-  // - contract.tokenTerrainValues(...)
-  // - contract.tokenToAuthorizedDreamer(...)
-  // - contract.tokenToCanvasData(...)
-  // - contract.tokenToDreamBlock(...)
-  // - contract.tokenToDreamer(...)
-  // - contract.tokenToPlacement(...)
-  // - contract.tokenToStatus(...)
-  // - contract.tokenURI(...)
-  // - contract.tokenURIAddresses(...)
-  // - contract.totalSupply(...)
 }
 
-export function handleApprovalForAll(event: ApprovalForAll): void {}
 
-export function handleDaydreaming(event: Daydreaming): void {}
+export function handleTerraformed(event: TerraformedEvent): void {
+  let entity = new Terraformed(
+    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  )
+  entity.tokenId = event.params.tokenId
+  entity.terraformer = event.params.terraformer
+  entity.save()
+}
 
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
+export function handleTokensRevealed(event: TokensRevealedEvent): void {
+  let entity = new TokensRevealed(
+    event.transaction.hash.toHex() + "-" + event.logIndex.toString()
+  )
+  entity.timestamp = event.params.timestamp
+  entity.seed = event.params.seed
+  entity.save()
+}
 
-export function handleTerraformed(event: Terraformed): void {}
+export function handleTransfer(event: TransferEvent): void {
+  const tokenIdStr = event.params.tokenId.toString()
+  let contract = Terraforms.bind(event.address)
+  let token = Token.load(tokenIdStr)
+  if (!token) {
+    token = new Token(tokenIdStr)
+    token.tokenID = event.params.tokenId
+    token.createdAt = event.block.timestamp
+    token.tokenURI = contract.tokenURI(event.params.tokenId)
+  }
 
-export function handleTokensRevealed(event: TokensRevealed): void {}
+  token.supplementalData = tokenIdStr
+  token.terraformer = event.params.to.toHexString()
+  token.save()
 
-export function handleTransfer(event: Transfer): void {}
+  let terraformer = Terraformer.load(event.params.to.toHexString())
+  if (!terraformer) {
+    terraformer = new Terraformer(event.params.to.toHexString())
+    terraformer.save()
+  }
+
+  let supplementalData = SupplementalData.load(tokenIdStr)
+  let supplementalRes = contract.try_tokenSupplementalData(event.params.tokenId)
+  let supplemental = supplementalRes
+
+  if (!supplementalData && supplementalRes.reverted) {
+    // Only use the json data if we can't find anything at all
+    // const storedSupplemental = getSupplementalData((parseInt(tokenIdStr) - 1) as i32)
+    // if (!storedSupplemental) return
+    // supplementalData = new SupplementalData(tokenIdStr)
+    // supplementalData.tokenID = storedSupplemental.tokenId.toString()
+    // supplementalData.level = storedSupplemental.level
+    // supplementalData.xCoordinate = storedSupplemental.xCoordinate
+    // supplementalData.yCoordinate = storedSupplemental.yCoordinate
+    // supplementalData.elevation = storedSupplemental.elevation
+    // supplementalData.structureSpaceX = storedSupplemental.structureSpaceX
+    // supplementalData.structureSpaceY = storedSupplemental.structureSpaceY
+    // supplementalData.structureSpaceZ = storedSupplemental.structureSpaceZ
+    // supplementalData.zoneName = storedSupplemental.zoneName
+    // supplementalData.zoneColors = storedSupplemental.zoneColors
+    // supplementalData.characterSet = storedSupplemental.characterSet
+    // supplementalData.save()
+    return
+  }
+
+  supplementalData = new SupplementalData(tokenIdStr)
+  supplementalData.tokenID = supplemental.value.tokenId.toString()
+  supplementalData.level = supplemental.value.level
+  supplementalData.xCoordinate = supplemental.value.xCoordinate
+  supplementalData.yCoordinate = supplemental.value.yCoordinate
+  supplementalData.elevation = supplemental.value.elevation
+  supplementalData.structureSpaceX = supplemental.value.structureSpaceX
+  supplementalData.structureSpaceY = supplemental.value.structureSpaceY
+  supplementalData.structureSpaceZ = supplemental.value.structureSpaceZ
+  supplementalData.zoneName = supplemental.value.zoneName
+  supplementalData.zoneColors = supplemental.value.zoneColors
+  supplementalData.characterSet = supplemental.value.characterSet
+  supplementalData.save()
+}

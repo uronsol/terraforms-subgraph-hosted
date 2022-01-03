@@ -1,6 +1,6 @@
 specVersion: 0.0.2
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: Terraforms
@@ -22,7 +22,7 @@ dataSources:
         - Terraformer
       abis:
         - name: Terraforms
-          file: abis/Terraforms.json
+          file: Terraforms/abis/Terraforms.json
       eventHandlers:
         - event: Daydreaming(uint256)
           handler: handleDaydreaming
@@ -32,4 +32,4 @@ dataSources:
           handler: handleTokensRevealed
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
-      file: ./src/mapping.ts
+      file: Terraforms/Terraforms.wasm
