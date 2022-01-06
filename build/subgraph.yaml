@@ -16,7 +16,6 @@ dataSources:
       entities:
         - Daydreaming
         - Terraformed
-        - TokensRevealed
         - SupplementalData
         - Token
         - Terraformer
@@ -28,8 +27,6 @@ dataSources:
           handler: handleDaydreaming
         - event: Terraformed(uint256,address)
           handler: handleTerraformed
-        - event: TokensRevealed(uint256,uint256)
-          handler: handleTokensRevealed
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
       file: Terraforms/Terraforms.wasm

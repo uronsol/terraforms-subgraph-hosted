@@ -9,26 +9,29 @@ type Terraformed @entity {
   terraformer: Bytes! # address
 }
 
-type TokensRevealed @entity {
+type RenderData @entity {
   id: ID!
-  timestamp: BigInt! # uint256
-  seed: BigInt! # uint256
+  fontFamily: String!
+  fontString: String!
+  structureSpaceX: BigInt!
+  structureSpaceY: BigInt!
+  structureSpaceZ: BigInt!
+  tokenHTML: String!
+  tokenSVG: String!
+  token: Token!
 }
 
 type SupplementalData @entity {
   id: ID!
-  tokenID: ID!
   level: BigInt!
   xCoordinate: BigInt!
   yCoordinate: BigInt!
   elevation: BigInt!
-  structureSpaceX: BigInt!
-  structureSpaceY: BigInt!
-  structureSpaceZ: BigInt!
   zoneName: String!
-  zoneColors: [String!]!
+  seedValue: BigInt!
   characterSet: [String!]!
-  seed: BigInt!
+  zoneColors: [String!]!
+  token: Token!
 }
 
 type Token @entity {
@@ -37,6 +40,7 @@ type Token @entity {
   tokenURI: String!
   terraformer: Terraformer!
   createdAt: BigInt!
+  renderData: RenderData
   supplementalData: SupplementalData
 }
 
