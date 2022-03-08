@@ -17,7 +17,6 @@ dataSources:
         - Daydreaming
         - Terraformed
         - SupplementalData
-        - RenderData
         - Token
         - Terraformer
       abis:

@@ -109,119 +109,6 @@ export class Terraformed extends Entity {
   }
 }
 
-export class RenderData extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-
-    this.set("fontFamily", Value.fromString(""));
-    this.set("fontString", Value.fromString(""));
-    this.set("structureSpaceX", Value.fromBigInt(BigInt.zero()));
-    this.set("structureSpaceY", Value.fromBigInt(BigInt.zero()));
-    this.set("structureSpaceZ", Value.fromBigInt(BigInt.zero()));
-    this.set("tokenHTML", Value.fromString(""));
-    this.set("tokenSVG", Value.fromString(""));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save RenderData entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        "Cannot save RenderData entity with non-string ID. " +
-          'Considering using .toHex() to convert the "id" to a string.'
-      );
-      store.set("RenderData", id.toString(), this);
-    }
-  }
-
-  static load(id: string): RenderData | null {
-    return changetype<RenderData | null>(store.get("RenderData", id));
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value!.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get fontFamily(): string {
-    let value = this.get("fontFamily");
-    return value!.toString();
-  }
-
-  set fontFamily(value: string) {
-    this.set("fontFamily", Value.fromString(value));
-  }
-
-  get fontString(): string {
-    let value = this.get("fontString");
-    return value!.toString();
-  }
-
-  set fontString(value: string) {
-    this.set("fontString", Value.fromString(value));
-  }
-
-  get structureSpaceX(): BigInt {
-    let value = this.get("structureSpaceX");
-    return value!.toBigInt();
-  }
-
-  set structureSpaceX(value: BigInt) {
-    this.set("structureSpaceX", Value.fromBigInt(value));
-  }
-
-  get structureSpaceY(): BigInt {
-    let value = this.get("structureSpaceY");
-    return value!.toBigInt();
-  }
-
-  set structureSpaceY(value: BigInt) {
-    this.set("structureSpaceY", Value.fromBigInt(value));
-  }
-
-  get structureSpaceZ(): BigInt {
-    let value = this.get("structureSpaceZ");
-    return value!.toBigInt();
-  }
-
-  set structureSpaceZ(value: BigInt) {
-    this.set("structureSpaceZ", Value.fromBigInt(value));
-  }
-
-  get tokenHTML(): string {
-    let value = this.get("tokenHTML");
-    return value!.toString();
-  }
-
-  set tokenHTML(value: string) {
-    this.set("tokenHTML", Value.fromString(value));
-  }
-
-  get tokenSVG(): string {
-    let value = this.get("tokenSVG");
-    return value!.toString();
-  }
-
-  set tokenSVG(value: string) {
-    this.set("tokenSVG", Value.fromString(value));
-  }
-
-  get token(): string {
-    let value = this.get("token");
-    return value!.toString();
-  }
-
-  set token(value: string) {
-    this.set("token", Value.fromString(value));
-  }
-}
-
 export class SupplementalData extends Entity {
   constructor(id: string) {
     super();
@@ -235,6 +122,7 @@ export class SupplementalData extends Entity {
     this.set("seedValue", Value.fromBigInt(BigInt.zero()));
     this.set("characterSet", Value.fromStringArray(new Array(0)));
     this.set("zoneColors", Value.fromStringArray(new Array(0)));
+    this.set("token", Value.fromString(""));
   }
 
   save(): void {
@@ -418,23 +306,6 @@ export class Token extends Entity {
 
   set createdAt(value: BigInt) {
     this.set("createdAt", Value.fromBigInt(value));
-  }
-
-  get renderData(): string | null {
-    let value = this.get("renderData");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
-  }
-
-  set renderData(value: string | null) {
-    if (!value) {
-      this.unset("renderData");
-    } else {
-      this.set("renderData", Value.fromString(<string>value));
-    }
   }
 
   get supplementalData(): string | null {

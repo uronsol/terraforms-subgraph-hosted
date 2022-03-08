@@ -1,29 +1,26 @@
+"""
+A Terraform token that has been transitioned to Daydream mode. Note that a token can be Daydreamt more than once.
+"""
 type Daydreaming @entity {
   id: ID!
   tokenId: BigInt! # uint256
 }
 
+"""
+A Terraform token that has been transitioned to Terraformed mode. Note that a token can be Terraformed more than once.
+"""
 type Terraformed @entity {
   id: ID!
   tokenId: BigInt! # uint256
   terraformer: Bytes! # address
 }
 
-type RenderData @entity {
-  id: ID!
-  fontFamily: String!
-  fontString: String!
-  structureSpaceX: BigInt!
-  structureSpaceY: BigInt!
-  structureSpaceZ: BigInt!
-  tokenHTML: String!
-  tokenSVG: String!
-  token: Token!
-}
-
+"""
+The supplemental data that's associated with a Terraform. Also includes the seed value of the token as a convenience.
+"""
 type SupplementalData @entity {
   id: ID!
-  level: BigInt!
+  level: BigInt! # level of the token
   xCoordinate: BigInt!
   yCoordinate: BigInt!
   elevation: BigInt!
@@ -34,16 +31,21 @@ type SupplementalData @entity {
   token: Token!
 }
 
+"""
+A Terraform by Mathcastles token.
+"""
 type Token @entity {
   id: ID!
   tokenID: BigInt!
   tokenURI: String!
   terraformer: Terraformer!
   createdAt: BigInt!
-  renderData: RenderData
   supplementalData: SupplementalData
 }
 
+"""
+An user of Terraforms by Mathcastles.
+"""
 type Terraformer @entity {
   id: ID!
   tokens: [Token!]! @derivedFrom(field: "terraformer")
